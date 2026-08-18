@@ -26,7 +26,7 @@ HirePulse is a multi-tenant SaaS application that enables organizations to manag
 
 ### Backend
 - **Framework**: FastAPI (Python 3.10+)
-- **Database**: SQLite (Zero-config default) / PostgreSQL / MySQL
+- **Database**: MySQL
 - **ORM & Migrations**: SQLAlchemy & Alembic
 - **Auth**: JWT Authentication with `python-jose` & `bcrypt`
 - **PDF Generation**: ReportLab
