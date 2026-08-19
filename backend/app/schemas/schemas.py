@@ -163,6 +163,11 @@ class InterviewScheduleCreate(BaseModel):
     interviewer_id: int
     interview_date: datetime
 
+class InterviewUpdate(BaseModel):
+    interview_date: Optional[datetime] = None
+    interviewer_id: Optional[int] = None
+    meeting_link: Optional[str] = None
+
 class InterviewResponse(BaseModel):
     id: int
     application_id: int
@@ -170,6 +175,7 @@ class InterviewResponse(BaseModel):
     interview_date: datetime
     meeting_link: Optional[str] = None
     calendar_event_id: Optional[str] = None
+    gcal_url: Optional[str] = None
     status: str
     candidate_name: Optional[str] = None
     job_title: Optional[str] = None

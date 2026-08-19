@@ -232,16 +232,31 @@ export default function CandidateDashboard() {
                   <span>{new Date(inv.interview_date).toLocaleString()}</span>
                 </div>
 
-                {inv.meeting_link && (
-                  <a
-                    href={inv.meeting_link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-center block transition shadow"
-                  >
-                    Join Video Interview Meeting
-                  </a>
-                )}
+                <div className="grid grid-cols-2 gap-2">
+                  {inv.gcal_url && (
+                    <a
+                      href={inv.gcal_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 font-semibold text-center border border-amber-500/30 flex items-center justify-center space-x-1.5 transition text-xs"
+                      title="Add to Google Calendar to receive instant notifications"
+                    >
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>Sync Google Cal</span>
+                    </a>
+                  )}
+                  {inv.meeting_link && (
+                    <a
+                      href={inv.meeting_link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-center flex items-center justify-center space-x-1.5 transition shadow text-xs ${inv.gcal_url ? '' : 'col-span-2'}`}
+                    >
+                      <Video className="w-3.5 h-3.5" />
+                      <span>Join Meet</span>
+                    </a>
+                  )}
+                </div>
               </div>
             ))}
           </div>

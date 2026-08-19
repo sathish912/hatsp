@@ -89,14 +89,49 @@ def send_shortlisted_email(candidate_email: str, candidate_name: str, job_title:
     """
     send_email(candidate_email, subject, content)
 
-def send_interview_invitation_email(candidate_email: str, candidate_name: str, job_title: str, interview_date: str, meeting_link: str):
-    subject = f"Interview Invitation for {job_title}"
+def send_interview_invitation_email(candidate_email: str, candidate_name: str, job_title: str, interview_date: str, meeting_link: str, gcal_url: str = ""):
+    subject = f"📅 Interview Invitation: {job_title}"
+    gcal_button_html = f"""
+    <div style="margin-top: 16px;">
+        <a href="{gcal_url}" target="_blank" style="background-color: #2563EB; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+            📅 Add to Google Calendar & Set Reminder
+        </a>
+    </div>
+    """ if gcal_url else ""
+
     content = f"""
-    <h3>Interview Scheduled</h3>
-    <p>Hi {candidate_name},</p>
-    <p>You have been invited for an interview for the role of <b>{job_title}</b>.</p>
-    <p><b>Date & Time:</b> {interview_date}</p>
-    <p><b>Meeting Link:</b> <a href="{meeting_link}">{meeting_link}</a></p>
+    <h2>Interview Invitation</h2>
+    <p>Hi <b>{candidate_name}</b>,</p>
+    <p>You have been invited for an official interview for the role of <b>{job_title}</b>.</p>
+    <div style="background-color: #0F172A; color: #F8FAFC; padding: 16px; border-radius: 12px; margin: 16px 0;">
+        <p style="margin: 4px 0;">📅 <b>Date & Time:</b> {interview_date}</p>
+        <p style="margin: 4px 0;">📹 <b>Video Meeting Link:</b> <a href="{meeting_link}" style="color: #60A5FA;">{meeting_link}</a></p>
+    </div>
+    {gcal_button_html}
+    <p style="margin-top: 20px; font-size: 13px; color: #64748B;">Automated reminder: Add this event to your Google Calendar to receive instant notifications before the interview starts.</p>
+    """
+    send_email(candidate_email, subject, content)
+
+def send_interview_rescheduled_email(candidate_email: str, candidate_name: str, job_title: str, new_interview_date: str, meeting_link: str, gcal_url: str = ""):
+    subject = f"🔔 RESCHEDULED: Interview for {job_title}"
+    gcal_button_html = f"""
+    <div style="margin-top: 16px;">
+        <a href="{gcal_url}" target="_blank" style="background-color: #2563EB; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+            📅 Sync Updated Google Calendar Event
+        </a>
+    </div>
+    """ if gcal_url else ""
+
+    content = f"""
+    <h2>Interview Schedule Updated</h2>
+    <p>Hi <b>{candidate_name}</b>,</p>
+    <p>Your interview schedule for <b>{job_title}</b> has been updated by the recruitment team.</p>
+    <div style="background-color: #0F172A; color: #F8FAFC; padding: 16px; border-radius: 12px; margin: 16px 0; border-left: 4px solid #F59E0B;">
+        <p style="margin: 4px 0;">⏰ <b>New Date & Time:</b> {new_interview_date}</p>
+        <p style="margin: 4px 0;">📹 <b>Video Meeting Link:</b> <a href="{meeting_link}" style="color: #60A5FA;">{meeting_link}</a></p>
+    </div>
+    {gcal_button_html}
+    <p style="margin-top: 20px; font-size: 13px; color: #64748B;">Please update your calendar schedule accordingly.</p>
     """
     send_email(candidate_email, subject, content)
 

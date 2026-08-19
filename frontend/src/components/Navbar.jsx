@@ -148,7 +148,13 @@ export default function Navbar() {
       <ProfileModal isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
 
       {/* Interview Calendar Modal */}
-      <InterviewCalendarModal isOpen={calendarOpen} onClose={() => setCalendarOpen(false)} interviews={interviews} />
+      <InterviewCalendarModal
+        isOpen={calendarOpen}
+        onClose={() => setCalendarOpen(false)}
+        interviews={interviews}
+        isRecruiter={user && user.role !== 'candidate'}
+        onRefresh={fetchInterviews}
+      />
     </>
   );
 }
