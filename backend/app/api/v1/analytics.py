@@ -101,3 +101,14 @@ def get_analytics_dashboard(
         hiring_trends=hiring_trends,
         job_applications_breakdown=job_applications_breakdown
     )
+
+@router.get("/download-architecture-pdf")
+def download_architecture_pdf():
+    """Provides direct PDF download of the complete folder-by-folder technical architecture guide."""
+    from fastapi.responses import FileResponse
+    import os
+    pdf_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads", "pdfs", "HirePulse_ATS_Technical_Architecture_Guide.pdf")
+    if not os.path.exists(pdf_path):
+        from generate_docs_pdf import generate_technical_guide_pdf
+        pdf_path = generate_technical_guide_pdf()
+    return FileResponse(pdf_path, media_type="application/pdf", filename="HirePulse_ATS_Technical_Architecture_Guide.pdf")
