@@ -88,6 +88,7 @@ class CandidateProfile(Base):
     experience = Column(String(255), nullable=True)
     skills = Column(Text, nullable=True)
     resume_url = Column(String(500), nullable=True)
+    experience_certificate_url = Column(String(500), nullable=True)
 
     user = relationship("User", back_populates="profile")
 

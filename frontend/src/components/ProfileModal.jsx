@@ -14,6 +14,8 @@ export default function ProfileModal({ isOpen, onClose }) {
   const [skills, setSkills] = useState('');
   const [resumeUrl, setResumeUrl] = useState('');
   const [resumeFile, setResumeFile] = useState(null);
+  const [expCertUrl, setExpCertUrl] = useState('');
+  const [expCertFile, setExpCertFile] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -38,6 +40,7 @@ export default function ProfileModal({ isOpen, onClose }) {
       setExperience(data.experience || '');
       setSkills(data.skills || '');
       setResumeUrl(data.resume_url || '');
+      setExpCertUrl(data.experience_certificate_url || '');
     } catch (err) {
       console.error('Error fetching profile:', err);
     } finally {
@@ -59,6 +62,7 @@ export default function ProfileModal({ isOpen, onClose }) {
       if (experience) formData.append('experience', experience);
       if (skills) formData.append('skills', skills);
       if (resumeFile) formData.append('resume', resumeFile);
+      if (expCertFile) formData.append('experience_certificate', expCertFile);
 
       const res = await api.put('/auth/profile', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -66,6 +70,7 @@ export default function ProfileModal({ isOpen, onClose }) {
 
       const updated = res.data;
       setResumeUrl(updated.resume_url || '');
+      setExpCertUrl(updated.experience_certificate_url || '');
 
       // Update AuthContext user state
       if (user) {
@@ -291,7 +296,7 @@ export default function ProfileModal({ isOpen, onClose }) {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2 text-xs text-slate-400">
                       <FileText className="w-4 h-4 text-blue-400" />
-                      <span>{resumeUrl ? 'Current document attached' : 'No document uploaded yet'}</span>
+                      <span>{resumeUrl ? 'Current resume document attached' : 'No resume uploaded yet'}</span>
                     </div>
                     {resumeUrl && (
                       <a
@@ -300,7 +305,7 @@ export default function ProfileModal({ isOpen, onClose }) {
                         rel="noreferrer"
                         className="text-xs text-blue-400 hover:underline font-semibold"
                       >
-                        View Current File
+                        View Resume File
                       </a>
                     )}
                   </div>
@@ -315,6 +320,48 @@ export default function ProfileModal({ isOpen, onClose }) {
                   </div>
                 </div>
               </div>
+
+              {/* Experience Certificate PDF Upload */}
+              {user?.role === 'candidate' && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+                    <span className="flex items-center space-x-1">
+                      <Award className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Employment Experience Certificate (PDF)</span>
+                    </span>
+                    <span className="text-[10px] text-amber-400/80 font-normal">
+                      (Optional for Freshers)
+                    </span>
+                  </label>
+                  <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2 text-xs text-slate-400">
+                        <Award className="w-4 h-4 text-amber-400" />
+                        <span>{expCertUrl ? 'Verified experience certificate attached' : 'No experience certificate uploaded yet'}</span>
+                      </div>
+                      {expCertUrl && (
+                        <a
+                          href={expCertUrl.startsWith('http') ? expCertUrl : `http://localhost:8000${expCertUrl.startsWith('/') ? '' : '/'}${expCertUrl}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs text-amber-400 hover:underline font-semibold"
+                        >
+                          View Certificate PDF
+                        </a>
+                      )}
+                    </div>
+
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) => setExpCertFile(e.target.files[0])}
+                        className="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-500/10 file:text-amber-400 hover:file:bg-amber-500/20 cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </form>
           )}
         </div>

@@ -1,11 +1,13 @@
 import React from 'react';
-import { X, User, Mail, Phone, Briefcase, FileText, Download, Award, Calendar, CheckCircle2, Sparkles, ExternalLink } from 'lucide-react';
+import { X, User, Mail, Phone, Briefcase, FileText, Download, Award, Calendar, CheckCircle2, Sparkles, ExternalLink, ShieldCheck } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 
 export default function CandidateDetailsModal({ isOpen, onClose, application, onShortlist, onSchedule, onOffer }) {
   if (!isOpen || !application) return null;
 
   const resumeUrl = application.candidate_resume_url || `/uploads/resumes/resume_student${application.candidate_id || 1}.pdf`;
+  const isFresher = (application.candidate_experience || '').toLowerCase().includes('fresher');
+  const certUrl = application.candidate_experience_certificate_url || (isFresher ? null : `/uploads/experience_certificates/exp_cert_student${application.candidate_id || 1}.pdf`);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
@@ -74,13 +76,81 @@ export default function CandidateDetailsModal({ isOpen, onClose, application, on
 
           {/* Professional Experience & Background */}
           <div className="space-y-2">
-            <h4 className="font-bold text-white flex items-center space-x-1.5 text-xs">
-              <Award className="w-4 h-4 text-amber-400" />
-              <span>Professional Experience & Background</span>
+            <h4 className="font-bold text-white flex items-center justify-between text-xs">
+              <span className="flex items-center space-x-1.5">
+                <Award className="w-4 h-4 text-amber-400" />
+                <span>Professional Experience & Background</span>
+              </span>
+              {isFresher ? (
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
+                  🌱 Registered Fresher
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] font-bold">
+                  💼 Experienced Candidate
+                </span>
+              )}
             </h4>
             <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-slate-300 leading-relaxed font-medium">
-              {application.candidate_experience || '3+ years of relevant industry experience in software engineering and cloud systems architecture.'}
+              {application.candidate_experience || '3+ years of relevant industry experience.'}
             </div>
+          </div>
+
+          {/* Experience Certificate Verification Section */}
+          <div className="space-y-2">
+            <h4 className="font-bold text-white flex items-center space-x-1.5 text-xs">
+              <ShieldCheck className="w-4 h-4 text-amber-400" />
+              <span>Employment Experience Verification</span>
+            </h4>
+
+            {isFresher ? (
+              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center space-x-3 text-emerald-400">
+                <Award className="w-5 h-5 flex-shrink-0" />
+                <div>
+                  <div className="font-bold text-xs">🌱 Registered Fresher (Entry Level Candidate)</div>
+                  <div className="text-[10px] text-emerald-300/80">Fresher candidate profile — No prior company experience certificate required.</div>
+                </div>
+              </div>
+            ) : certUrl ? (
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/40 via-orange-950/40 to-slate-950 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-white text-xs">Verified Experience Certificate (PDF)</div>
+                    <div className="text-[10px] text-slate-400">Proof of prior employment provided by candidate</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2 w-full sm:w-auto">
+                  <a
+                    href={certUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition flex items-center justify-center space-x-1.5 shadow-md shadow-amber-500/20 w-full sm:w-auto"
+                  >
+                    <Award className="w-3.5 h-3.5" />
+                    <span>View Certificate PDF</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+
+                  <a
+                    href={certUrl}
+                    download
+                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition flex items-center justify-center space-x-1.5 w-full sm:w-auto"
+                  >
+                    <Download className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Download</span>
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-slate-400 text-[11px] flex items-center space-x-2">
+                <Award className="w-4 h-4 text-slate-500" />
+                <span>Experience Certificate: Pending candidate upload or unattached.</span>
+              </div>
+            )}
           </div>
 
           {/* Technical Skills & Competencies */}

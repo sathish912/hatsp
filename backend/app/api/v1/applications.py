@@ -62,6 +62,7 @@ def apply_for_job(
         candidate_experience=profile.experience if profile else None,
         candidate_skills=profile.skills if profile else None,
         candidate_resume_url=profile.resume_url if profile else None,
+        candidate_experience_certificate_url=profile.experience_certificate_url if profile else None,
         job_title=job.title,
         company_name=org.company_name if org else "Company"
     )
@@ -89,6 +90,7 @@ def get_my_applications(current_user: User = Depends(require_roles([UserRole.CAN
                 candidate_experience=profile.experience if profile else None,
                 candidate_skills=profile.skills if profile else None,
                 candidate_resume_url=profile.resume_url if profile else None,
+                candidate_experience_certificate_url=profile.experience_certificate_url if profile else None,
                 job_title=job.title if job else "N/A",
                 company_name=org.company_name if org else "Company"
             )
@@ -128,6 +130,7 @@ def get_org_applications(
                 candidate_experience=profile.experience if profile else None,
                 candidate_skills=profile.skills if profile else None,
                 candidate_resume_url=profile.resume_url if profile else None,
+                candidate_experience_certificate_url=profile.experience_certificate_url if profile else None,
                 job_title=job.title if job else "N/A",
                 company_name=org.company_name if org else "Company"
             )
@@ -179,6 +182,7 @@ def update_application_status(
         candidate_experience=profile.experience if profile else None,
         candidate_skills=profile.skills if profile else None,
         candidate_resume_url=profile.resume_url if profile else None,
+        candidate_experience_certificate_url=profile.experience_certificate_url if profile else None,
         job_title=job.title if job else "N/A",
         company_name=org.company_name if org else "Company"
     )

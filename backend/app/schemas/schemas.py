@@ -71,6 +71,13 @@ class CandidateProfileCreate(BaseModel):
     skills: Optional[str] = None
     resume_url: Optional[str] = None
 
+class CandidateProfileUpdate(BaseModel):
+    phone: Optional[str] = None
+    experience: Optional[str] = None
+    skills: Optional[str] = None
+    resume_url: Optional[str] = None
+    experience_certificate_url: Optional[str] = None
+
 class CandidateProfileResponse(BaseModel):
     id: int
     user_id: int
@@ -78,6 +85,7 @@ class CandidateProfileResponse(BaseModel):
     experience: Optional[str] = None
     skills: Optional[str] = None
     resume_url: Optional[str] = None
+    experience_certificate_url: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -94,6 +102,7 @@ class UserProfileResponse(BaseModel):
     experience: Optional[str] = None
     skills: Optional[str] = None
     resume_url: Optional[str] = None
+    experience_certificate_url: Optional[str] = None
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
@@ -152,6 +161,7 @@ class JobApplicationResponse(BaseModel):
     candidate_experience: Optional[str] = None
     candidate_skills: Optional[str] = None
     candidate_resume_url: Optional[str] = None
+    candidate_experience_certificate_url: Optional[str] = None
     job_title: Optional[str] = None
     company_name: Optional[str] = None
 

@@ -98,17 +98,21 @@ def seed():
         db.refresh(rec1)
         db.refresh(rec2)
 
-        # 5. Candidate / Student Users
+        # 5. Candidate / Student Users (Student 1 to Student 10, including Freshers)
         student_users = [
-            {"email": "student1@hatsp.com", "name": "Aarav Gupta", "phone": "+91 98765 43210", "exp": "3 years Full-Stack", "skills": "React, Python, FastAPI, MySQL, Tailwind CSS"},
-            {"email": "student2@hatsp.com", "name": "Sneha Reddy", "phone": "+91 98123 45678", "exp": "2 years Backend", "skills": "Node.js, PostgreSQL, Microservices, Docker, Redis"},
-            {"email": "student3@hatsp.com", "name": "Karthik Nair", "phone": "+91 97654 32109", "exp": "4 years Product Lead", "skills": "Product Strategy, Agile, SQL, System Architecture, UI/UX"},
-            {"email": "student4@hatsp.com", "name": "Devika Menon", "phone": "+91 98450 11223", "exp": "2 years UI/UX Design", "skills": "Figma, Wireframing, User Research, Prototyping, CSS3"},
-            {"email": "student5@hatsp.com", "name": "Rahul Sharma", "phone": "+91 97110 33445", "exp": "5 years DevOps Lead", "skills": "AWS, Kubernetes, Terraform, CI/CD, Python, Linux"},
-            {"email": "student6@hatsp.com", "name": "Ananya Joshi", "phone": "+91 96220 55667", "exp": "3 years Data Science", "skills": "PyTorch, Pandas, Scikit-learn, SQL, Data Pipelines"}
+            {"email": "student1@hatsp.com", "name": "Aarav Gupta", "phone": "+91 98765 43210", "exp": "3 years Full-Stack", "skills": "React, Python, FastAPI, MySQL, Tailwind CSS", "company": "TechCorp Systems", "prev_role": "Software Engineer"},
+            {"email": "student2@hatsp.com", "name": "Sneha Reddy", "phone": "+91 98123 45678", "exp": "2 years Backend", "skills": "Node.js, PostgreSQL, Microservices, Docker, Redis", "company": "CloudWave Solutions", "prev_role": "Backend Engineer"},
+            {"email": "student3@hatsp.com", "name": "Karthik Nair", "phone": "+91 97654 32109", "exp": "4 years Product Lead", "skills": "Product Strategy, Agile, SQL, System Architecture, UI/UX", "company": "Innovate Digital", "prev_role": "Product Specialist"},
+            {"email": "student4@hatsp.com", "name": "Devika Menon", "phone": "+91 98450 11223", "exp": "Fresher (Entry Level / New Graduate)", "skills": "Figma, Wireframing, User Research, Prototyping, CSS3", "company": None, "prev_role": None},
+            {"email": "student5@hatsp.com", "name": "Rahul Sharma", "phone": "+91 97110 33445", "exp": "5 years DevOps Lead", "skills": "AWS, Kubernetes, Terraform, CI/CD, Python, Linux", "company": "DataScale Technologies", "prev_role": "Cloud Engineer"},
+            {"email": "student6@hatsp.com", "name": "Ananya Joshi", "phone": "+91 96220 55667", "exp": "Fresher (Data Science Graduate)", "skills": "PyTorch, Pandas, Scikit-learn, SQL, Data Pipelines", "company": None, "prev_role": None},
+            {"email": "student7@hatsp.com", "name": "Rohan Verma", "phone": "+91 95430 66778", "exp": "Fresher (Junior Frontend Engineer)", "skills": "JavaScript, React, HTML5, CSS3, Git", "company": None, "prev_role": None},
+            {"email": "student8@hatsp.com", "name": "Pooja Hegde", "phone": "+91 94321 88990", "exp": "1.5 years QA Automation", "skills": "Cypress, Selenium, Pytest, Postman API Testing", "company": "QualityFirst Tech", "prev_role": "QA Test Engineer"},
+            {"email": "student9@hatsp.com", "name": "Vikram Aditya", "phone": "+91 93210 11447", "exp": "Fresher (B.Tech CS Graduate)", "skills": "C++, Python, Data Structures, Algorithms, MySQL", "company": None, "prev_role": None},
+            {"email": "student10@hatsp.com", "name": "Meera Krishnan", "phone": "+91 92109 22558", "exp": "2 years Mobile Developer", "skills": "React Native, Flutter, Swift, Kotlin, Firebase", "company": "Appify Mobile Labs", "prev_role": "Mobile App Developer"}
         ]
 
-        from app.services.pdf_service import generate_candidate_resume_pdf
+        from app.services.pdf_service import generate_candidate_resume_pdf, generate_experience_certificate_pdf
 
         student_objs = []
         for idx, s in enumerate(student_users, start=1):
@@ -120,7 +124,7 @@ def seed():
                 db.refresh(u)
 
             # Generate individual PDF resume
-            resume_filename = f"resume_{s['email'].split('@')[0]}.pdf"
+            resume_filename = f"resume_student{idx}.pdf"
             generate_candidate_resume_pdf(
                 candidate_name=s["name"],
                 email=s["email"],
@@ -130,6 +134,19 @@ def seed():
                 filename=resume_filename
             )
 
+            # Generate experience certificate for experienced candidates (non-freshers)
+            is_fresher = "fresher" in s["exp"].lower()
+            cert_filename = None
+            if not is_fresher and s["company"]:
+                cert_filename = f"exp_cert_student{idx}.pdf"
+                generate_experience_certificate_pdf(
+                    candidate_name=s["name"],
+                    previous_company=s["company"],
+                    duration=s["exp"],
+                    role_title=s["prev_role"] or "Software Engineer",
+                    filename=cert_filename
+                )
+
             prof = db.query(CandidateProfile).filter(CandidateProfile.user_id == u.id).first()
             if not prof:
                 prof = CandidateProfile(
@@ -137,11 +154,16 @@ def seed():
                     phone=s["phone"],
                     experience=s["exp"],
                     skills=s["skills"],
-                    resume_url=f"/uploads/resumes/{resume_filename}"
+                    resume_url=f"/uploads/resumes/{resume_filename}",
+                    experience_certificate_url=f"/uploads/experience_certificates/{cert_filename}" if cert_filename else None
                 )
                 db.add(prof)
             else:
+                prof.experience = s["exp"]
+                prof.skills = s["skills"]
                 prof.resume_url = f"/uploads/resumes/{resume_filename}"
+                if cert_filename:
+                    prof.experience_certificate_url = f"/uploads/experience_certificates/{cert_filename}"
             db.commit()
 
             student_objs.append(u)

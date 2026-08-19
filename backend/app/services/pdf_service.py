@@ -6,9 +6,36 @@ from reportlab.lib import colors
 
 UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads", "pdfs")
 RESUME_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads", "resumes")
+CERTIFICATE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads", "experience_certificates")
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(RESUME_DIR, exist_ok=True)
+os.makedirs(CERTIFICATE_DIR, exist_ok=True)
+
+def generate_experience_certificate_pdf(candidate_name: str, previous_company: str, duration: str, role_title: str, filename: str) -> str:
+    filepath = os.path.join(CERTIFICATE_DIR, filename)
+    doc = SimpleDocTemplate(filepath, pagesize=letter, rightMargin=50, leftMargin=50, topMargin=50, bottomMargin=50)
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle('CertTitle', parent=styles['Heading1'], fontSize=22, leading=26, textColor=colors.HexColor('#0F172A'), spaceAfter=8, alignment=1)
+    sub_style = ParagraphStyle('CertSub', parent=styles['Normal'], fontSize=12, leading=16, textColor=colors.HexColor('#D97706'), spaceAfter=20, alignment=1, fontName='Helvetica-Bold')
+    body_style = ParagraphStyle('CertBody', parent=styles['Normal'], fontSize=11, leading=17, textColor=colors.HexColor('#334155'), spaceAfter=15)
+
+    story = [
+        Paragraph("<b>EXPERIENCE & SERVICE CERTIFICATE</b>", title_style),
+        Paragraph("VERIFIED EMPLOYMENT DOCUMENT", sub_style),
+        HRFlowable(width="100%", thickness=2, color=colors.HexColor('#D97706'), spaceAfter=25),
+        
+        Paragraph(f"This is to certify that <b>{candidate_name}</b> was employed with <b>{previous_company}</b> as a <b>{role_title}</b> for a verified duration of <b>{duration}</b>.", body_style),
+        Paragraph("During their tenure with our organization, they demonstrated exceptional technical competence, professional dedication, and strong teamwork capabilities across core projects.", body_style),
+        Paragraph("We confirm that their conduct was exemplary and we wish them continued success in their future career endeavors.", body_style),
+        Spacer(1, 40),
+        
+        Paragraph("<b>Issued & Verified By:</b><br/><b>Human Resources & Verification Officer</b><br/>" + previous_company, body_style)
+    ]
+
+    doc.build(story)
+    return filepath
 
 def generate_candidate_resume_pdf(candidate_name: str, email: str, phone: str, experience: str, skills: str, filename: str) -> str:
     filepath = os.path.join(RESUME_DIR, filename)

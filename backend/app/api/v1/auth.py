@@ -182,6 +182,7 @@ def get_profile(current_user: User = Depends(get_current_user), db: Session = De
         experience=profile.experience,
         skills=profile.skills,
         resume_url=profile.resume_url,
+        experience_certificate_url=profile.experience_certificate_url,
         created_at=current_user.created_at
     )
 
@@ -194,6 +195,7 @@ def update_profile(
     experience: Optional[str] = Form(None),
     skills: Optional[str] = Form(None),
     resume: Optional[UploadFile] = File(None),
+    experience_certificate: Optional[UploadFile] = File(None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -234,6 +236,10 @@ def update_profile(
         resume_url = upload_file_to_storage(resume, folder="resumes")
         profile.resume_url = resume_url
 
+    if experience_certificate:
+        cert_url = upload_file_to_storage(experience_certificate, folder="experience_certificates")
+        profile.experience_certificate_url = cert_url
+
     db.commit()
     db.refresh(profile)
     db.refresh(current_user)
@@ -250,6 +256,7 @@ def update_profile(
         experience=profile.experience,
         skills=profile.skills,
         resume_url=profile.resume_url,
+        experience_certificate_url=profile.experience_certificate_url,
         created_at=current_user.created_at
     )
 
