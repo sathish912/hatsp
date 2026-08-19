@@ -5,6 +5,7 @@ import { Plus, Calendar, FileText, CheckCircle, Clock, Video, Download, Sparkles
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
 import ProfileModal from '../components/ProfileModal';
+import CandidateDetailsModal from '../components/CandidateDetailsModal';
 
 import UpcomingInterviewReminderBanner from '../components/UpcomingInterviewReminderBanner';
 
@@ -20,6 +21,7 @@ export default function RecruiterDashboard() {
   const [createJobModal, setCreateJobModal] = useState(false);
   const [scheduleModal, setScheduleModal] = useState(null);
   const [offerModal, setOfferModal] = useState(null);
+  const [candidateDetailsModal, setCandidateDetailsModal] = useState(null);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   // Form states
@@ -292,17 +294,29 @@ export default function RecruiterDashboard() {
                 {applications
                   .filter(a => col.stage === 'Offer Sent' ? ['Interview Completed', 'Selected', 'Offer Sent', 'Offer Accepted'].includes(a.status) : a.status === col.stage)
                   .map((app) => (
-                    <div key={app.id} className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
-                      <div className="font-semibold text-white">{app.candidate_name}</div>
-                      <div className="text-[11px] text-slate-400">{app.job_title}</div>
-                      
-                      <div className="flex items-center justify-between pt-2 border-t border-slate-800/60">
+                    <div key={app.id} className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2.5 text-xs hover:border-slate-700 transition">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="font-bold text-white text-sm">{app.candidate_name}</div>
+                          <div className="text-[11px] text-slate-400">{app.job_title}</div>
+                        </div>
                         <StatusBadge status={app.status} />
+                      </div>
 
+                      {/* View Candidate Profile & Resume Button */}
+                      <button
+                        onClick={() => setCandidateDetailsModal(app)}
+                        className="w-full py-1.5 px-2.5 rounded-lg bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 text-blue-400 font-semibold text-[11px] transition flex items-center justify-center space-x-1.5"
+                      >
+                        <User className="w-3.5 h-3.5" />
+                        <span>View Profile & Resume</span>
+                      </button>
+
+                      <div className="flex items-center justify-end pt-2 border-t border-slate-800/60">
                         {app.status === 'Applied' && (
                           <button
                             onClick={() => handleStatusUpdate(app.id, 'Shortlisted')}
-                            className="px-2 py-1 rounded bg-purple-600 hover:bg-purple-500 text-white font-medium text-[10px]"
+                            className="px-3 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-[11px] transition"
                           >
                             Shortlist
                           </button>
@@ -311,9 +325,9 @@ export default function RecruiterDashboard() {
                         {app.status === 'Shortlisted' && (
                           <button
                             onClick={() => setScheduleModal(app)}
-                            className="px-2 py-1 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] flex items-center space-x-1"
+                            className="px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] transition flex items-center space-x-1"
                           >
-                            <Calendar className="w-3 h-3" />
+                            <Calendar className="w-3.5 h-3.5" />
                             <span>Schedule</span>
                           </button>
                         )}
@@ -321,7 +335,7 @@ export default function RecruiterDashboard() {
                         {app.status === 'Interview Scheduled' && (
                           <button
                             onClick={() => handleStatusUpdate(app.id, 'Interview Completed')}
-                            className="px-2 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-[10px]"
+                            className="px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] transition"
                           >
                             Mark Completed
                           </button>
@@ -330,9 +344,9 @@ export default function RecruiterDashboard() {
                         {['Interview Completed', 'Selected'].includes(app.status) && (
                           <button
                             onClick={() => setOfferModal(app)}
-                            className="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[10px] flex items-center space-x-1"
+                            className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] transition flex items-center space-x-1"
                           >
-                            <FileText className="w-3 h-3" />
+                            <FileText className="w-3.5 h-3.5" />
                             <span>Offer Letter</span>
                           </button>
                         )}
@@ -491,6 +505,16 @@ export default function RecruiterDashboard() {
           </button>
         </form>
       </Modal>
+
+      {/* Candidate Details & Resume Inspector Modal */}
+      <CandidateDetailsModal
+        isOpen={!!candidateDetailsModal}
+        onClose={() => setCandidateDetailsModal(null)}
+        application={candidateDetailsModal}
+        onShortlist={(id) => handleStatusUpdate(id, 'Shortlisted')}
+        onSchedule={(app) => setScheduleModal(app)}
+        onOffer={(app) => setOfferModal(app)}
+      />
 
       {/* Profile Modal */}
       <ProfileModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />

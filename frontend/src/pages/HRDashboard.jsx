@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { UserCheck, FileText, CheckCircle, XCircle, Award, Briefcase, Eye, User } from 'lucide-react';
 import StatusBadge from '../components/StatusBadge';
 import ProfileModal from '../components/ProfileModal';
+import CandidateDetailsModal from '../components/CandidateDetailsModal';
 
 export default function HRDashboard() {
   const { user } = useAuth();
@@ -11,6 +12,7 @@ export default function HRDashboard() {
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [candidateDetailsModal, setCandidateDetailsModal] = useState(null);
 
   useEffect(() => {
     fetchHRData();
@@ -124,7 +126,7 @@ export default function HRDashboard() {
               <tr>
                 <th className="p-3.5 rounded-l-xl">Candidate</th>
                 <th className="p-3.5">Target Job</th>
-                <th className="p-3.5">Skills / Experience</th>
+                <th className="p-3.5">Profile & Resume</th>
                 <th className="p-3.5">Current Status</th>
                 <th className="p-3.5 rounded-r-xl">Finalize Action</th>
               </tr>
@@ -137,7 +139,15 @@ export default function HRDashboard() {
                     <div className="text-[11px] text-slate-400">{app.candidate_email}</div>
                   </td>
                   <td className="p-3.5 font-medium text-slate-200">{app.job_title}</td>
-                  <td className="p-3.5 text-slate-400 max-w-xs truncate">{app.candidate_skills || 'N/A'}</td>
+                  <td className="p-3.5">
+                    <button
+                      onClick={() => setCandidateDetailsModal(app)}
+                      className="px-3 py-1.5 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 text-blue-400 font-semibold text-[11px] transition flex items-center space-x-1.5"
+                    >
+                      <User className="w-3.5 h-3.5" />
+                      <span>View Profile</span>
+                    </button>
+                  </td>
                   <td className="p-3.5"><StatusBadge status={app.status} /></td>
                   <td className="p-3.5">
                     <div className="flex items-center space-x-2">
@@ -165,6 +175,14 @@ export default function HRDashboard() {
           </table>
         </div>
       </div>
+
+      {/* Candidate Details Modal */}
+      <CandidateDetailsModal
+        isOpen={!!candidateDetailsModal}
+        onClose={() => setCandidateDetailsModal(null)}
+        application={candidateDetailsModal}
+        onShortlist={(id) => handleStatusChange(id, 'Shortlisted')}
+      />
 
       {/* Profile Modal */}
       <ProfileModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
