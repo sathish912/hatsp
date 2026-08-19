@@ -85,18 +85,35 @@ def seed():
             hrm2 = User(name="Vikram Malhotra", email="hrm2@hatsp.com", hashed_password=hashed_password, role=UserRole.HR_MANAGER.value, organization_id=org2.id)
             db.add(hrm2)
 
-        # Recruiter 2 belongs to InnovateTech Labs (Free Plan)
-        rec2 = db.query(User).filter(User.email == "rec2@hatsp.com").first()
-        if not rec2:
-            rec2 = User(name="Rohan Verma", email="rec2@hatsp.com", hashed_password=hashed_password, role=UserRole.RECRUITER.value, organization_id=org2.id)
-            db.add(rec2)
-        else:
-            # Re-assign rec2 to org2 (Free Plan) if needed
-            rec2.organization_id = org2.id
+        # Recruiters 2 through 7 belong to InnovateTech Labs (FREE PLAN - Non-Pro)
+        free_recruiters = [
+            {"email": "rec2@hatsp.com", "name": "Rohan Verma"},
+            {"email": "rec3@hatsp.com", "name": "Divya Sundaram"},
+            {"email": "rec4@hatsp.com", "name": "Siddharth Rao"},
+            {"email": "rec5@hatsp.com", "name": "Neha Kapoor"},
+            {"email": "rec6@hatsp.com", "name": "Amit Tandon"},
+            {"email": "rec7@hatsp.com", "name": "Kavya Nambiar"}
+        ]
 
-        db.commit()
-        db.refresh(rec1)
-        db.refresh(rec2)
+        rec_objs = [rec1]
+        for r_data in free_recruiters:
+            r_user = db.query(User).filter(User.email == r_data["email"]).first()
+            if not r_user:
+                r_user = User(
+                    name=r_data["name"],
+                    email=r_data["email"],
+                    hashed_password=hashed_password,
+                    role=UserRole.RECRUITER.value,
+                    organization_id=org2.id # FREE PLAN (non-Pro)
+                )
+                db.add(r_user)
+            else:
+                r_user.organization_id = org2.id # Ensure assigned to Free Plan
+            db.commit()
+            db.refresh(r_user)
+            rec_objs.append(r_user)
+
+        rec2 = rec_objs[1]
 
         # 5. Candidate / Student Users (Student 1 to Student 10, including Freshers)
         student_users = [
