@@ -69,6 +69,7 @@ export const interviewsAPI = {
   schedule: (data) => api.post('/interviews/schedule', data),
   updateInterview: (id, data) => api.put(`/interviews/${id}`, data),
   getMyInterviews: () => api.get('/interviews/my-interviews'),
+  getNotifications: () => api.get('/interviews/notifications'),
   updateStatus: (id, statusStr) => api.put(`/interviews/${id}/status?status_str=${encodeURIComponent(statusStr)}`),
   getSchedulePDFUrl: (id) => `/api/v1/interviews/${id}/pdf`,
 };

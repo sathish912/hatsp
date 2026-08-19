@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Briefcase, LogOut, User, Sparkles, Building, LayoutDashboard, Calendar, CreditCard } from 'lucide-react';
+import { Briefcase, LogOut, User, Sparkles, Building, LayoutDashboard, Calendar, CreditCard, Bell } from 'lucide-react';
 import ProfileModal from './ProfileModal';
 import InterviewCalendarModal from './InterviewCalendarModal';
+import NotificationsModal from './NotificationsModal';
 import { interviewsAPI } from '../services/api';
 
 export default function Navbar() {
@@ -11,7 +12,9 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [profileOpen, setProfileOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const [interviews, setInterviews] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 
   const handleLogout = () => {
     logout();
@@ -38,9 +41,29 @@ export default function Navbar() {
     }
   };
 
+  const fetchNotifications = async () => {
+    try {
+      const res = await interviewsAPI.getNotifications();
+      setNotifications(res.data || []);
+    } catch (err) {
+      console.error('Error fetching notifications:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user]);
+
   const openCalendarModal = async () => {
     await fetchInterviews();
     setCalendarOpen(true);
+  };
+
+  const openNotifModal = async () => {
+    await fetchNotifications();
+    setNotifOpen(true);
   };
 
   return (
@@ -92,6 +115,20 @@ export default function Navbar() {
                     <span className="hidden sm:inline">Interview Calendar</span>
                   </button>
 
+                  {/* Dedicated Notification Tab */}
+                  <button
+                    onClick={openNotifModal}
+                    className="relative flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-slate-900 border border-slate-800 hover:bg-slate-800 transition"
+                  >
+                    <Bell className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="hidden sm:inline">Notifications</span>
+                    {notifications.length > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-rose-500 text-white rounded-full text-[9px] font-extrabold flex items-center justify-center animate-pulse px-1">
+                        {notifications.length}
+                      </span>
+                    )}
+                  </button>
+
                   {user.company_name && (
                     <div className="hidden lg:flex items-center space-x-2.5 px-3.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/80 shadow-md shadow-blue-500/10">
                       <img
@@ -119,27 +156,26 @@ export default function Navbar() {
                     </div>
                     <button
                       onClick={handleLogout}
+                      className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition"
                       title="Sign Out"
-                      className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition"
                     >
                       <LogOut className="w-4 h-4" />
                     </button>
                   </div>
                 </>
               ) : (
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
                   <Link
                     to="/login"
-                    className="text-sm font-medium text-slate-300 hover:text-white transition px-3 py-1.5"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 transition"
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/register"
-                    className="flex items-center space-x-1.5 text-sm font-semibold px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md shadow-blue-500/20 transition"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-md shadow-blue-500/20 transition"
                   >
-                    <Sparkles className="w-4 h-4" />
-                    <span>Get Started</span>
+                    Get Started
                   </Link>
                 </div>
               )}
@@ -158,6 +194,13 @@ export default function Navbar() {
         interviews={interviews}
         isRecruiter={user && user.role !== 'candidate'}
         onRefresh={fetchInterviews}
+      />
+
+      {/* Notifications Modal */}
+      <NotificationsModal
+        isOpen={notifOpen}
+        onClose={() => setNotifOpen(false)}
+        notifications={notifications}
       />
     </>
   );

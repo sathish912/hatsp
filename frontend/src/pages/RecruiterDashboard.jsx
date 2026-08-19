@@ -98,10 +98,11 @@ export default function RecruiterDashboard() {
       return;
     }
     try {
+      const formattedDate = interviewDate.length === 16 ? `${interviewDate}:00` : interviewDate;
       await interviewsAPI.schedule({
         application_id: scheduleModal.id,
         interviewer_id: user.id,
-        interview_date: new Date(interviewDate).toISOString()
+        interview_date: formattedDate
       });
       setScheduleModal(null);
       setInterviewDate('');

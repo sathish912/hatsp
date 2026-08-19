@@ -281,3 +281,44 @@ def download_interview_schedule_pdf(interview_id: int, db: Session = Depends(get
     )
 
     return FileResponse(filepath, media_type="application/pdf", filename=filename)
+
+@router.get("/notifications")
+def get_calendar_notifications(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Fetch real-time Google Calendar interview notifications for candidate or recruiter."""
+    if current_user.role == UserRole.CANDIDATE.value:
+        interviews = db.query(Interview).join(JobApplication).filter(JobApplication.candidate_id == current_user.id).order_by(Interview.interview_date.desc()).all()
+    else:
+        interviews = db.query(Interview).join(JobApplication).join(Job).filter(Job.organization_id == current_user.organization_id).order_by(Interview.interview_date.desc()).all()
+
+    notifications = []
+    for inv in interviews:
+        app = db.query(JobApplication).filter(JobApplication.id == inv.application_id).first()
+        job = db.query(Job).filter(Job.id == app.job_id).first() if app else None
+        candidate = db.query(User).filter(User.id == app.candidate_id).first() if app else None
+        interviewer = db.query(User).filter(User.id == inv.interviewer_id).first()
+
+        date_str = inv.interview_date.strftime('%b %d, %Y at %I:%M %p')
+        gcal_url = generate_google_calendar_url(
+            summary=f"Interview: {job.title if job else 'Position'} - {candidate.name if candidate else 'Candidate'}",
+            description=f"Official interview for {job.title if job else 'Position'} position.",
+            start_time=inv.interview_date,
+            location=inv.meeting_link or ""
+        )
+
+        notifications.append({
+            "id": f"notif-inv-{inv.id}",
+            "interview_id": inv.id,
+            "type": "google_calendar_reminder",
+            "title": "📅 Google Calendar Interview Reminder",
+            "message": f"Interview for {job.title if job else 'Position'} on {date_str}. Synchronize with your Google Calendar for automatic alerts.",
+            "timestamp": inv.interview_date.isoformat(),
+            "date_str": date_str,
+            "gcal_url": gcal_url,
+            "meeting_link": inv.meeting_link,
+            "candidate_name": candidate.name if candidate else "Candidate",
+            "job_title": job.title if job else "Role",
+            "interviewer_name": interviewer.name if interviewer else "Interviewer",
+            "status": inv.status
+        })
+
+    return notifications

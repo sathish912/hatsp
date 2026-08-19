@@ -2,6 +2,17 @@ import React, { useState } from 'react';
 import { X, Calendar, Clock, Video, User, ExternalLink, Edit3, Check, AlertCircle } from 'lucide-react';
 import { interviewsAPI } from '../services/api';
 
+// Helper: Parse date string into local Date object without UTC timezone offset shift
+export const parseLocalDate = (dateStr) => {
+  if (!dateStr) return new Date();
+  const clean = String(dateStr).replace('Z', '').replace(' ', 'T');
+  const parts = clean.split('T');
+  if (parts.length < 2) return new Date(dateStr);
+  const [y, m, d] = parts[0].split('-').map(Number);
+  const [h, min] = parts[1].split(':').map(Number);
+  return new Date(y, m - 1, d, h, min);
+};
+
 export default function InterviewCalendarModal({ isOpen, onClose, interviews = [], isRecruiter = false, onRefresh }) {
   const [editingId, setEditingId] = useState(null);
   const [newDate, setNewDate] = useState('');
@@ -10,15 +21,16 @@ export default function InterviewCalendarModal({ isOpen, onClose, interviews = [
 
   if (!isOpen) return null;
 
-  const sortedInterviews = [...interviews].sort((a, b) => new Date(a.interview_date) - new Date(b.interview_date));
+  const sortedInterviews = [...interviews].sort((a, b) => parseLocalDate(a.interview_date) - parseLocalDate(b.interview_date));
 
   const handleStartEdit = (inv) => {
     setEditingId(inv.id);
-    // Format to datetime-local string YYYY-MM-DDTHH:mm
-    const dt = new Date(inv.interview_date);
-    const tzOffset = dt.getTimezoneOffset() * 60000;
-    const localIso = new Date(dt.getTime() - tzOffset).toISOString().slice(0, 16);
-    setNewDate(localIso);
+    if (inv.interview_date) {
+      const clean = String(inv.interview_date).replace('Z', '').replace(' ', 'T');
+      setNewDate(clean.slice(0, 16));
+    } else {
+      setNewDate('');
+    }
     setErrorMsg('');
   };
 
@@ -28,8 +40,9 @@ export default function InterviewCalendarModal({ isOpen, onClose, interviews = [
     setErrorMsg('');
 
     try {
+      const formattedDate = newDate.length === 16 ? `${newDate}:00` : newDate;
       await interviewsAPI.updateInterview(interviewId, {
-        interview_date: new Date(newDate).toISOString()
+        interview_date: formattedDate
       });
       setEditingId(null);
       if (onRefresh) onRefresh();
@@ -80,7 +93,7 @@ export default function InterviewCalendarModal({ isOpen, onClose, interviews = [
           ) : (
             <div className="space-y-4">
               {sortedInterviews.map((inv) => {
-                const dateObj = new Date(inv.interview_date);
+                const dateObj = parseLocalDate(inv.interview_date);
                 const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                 const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                 const isEditing = editingId === inv.id;
