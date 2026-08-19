@@ -6,6 +6,8 @@ import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
 import ProfileModal from '../components/ProfileModal';
 
+import UpcomingInterviewReminderBanner from '../components/UpcomingInterviewReminderBanner';
+
 export default function RecruiterDashboard() {
   const { user } = useAuth();
   const [jobs, setJobs] = useState([]);
@@ -182,6 +184,9 @@ export default function RecruiterDashboard() {
           </button>
         </div>
       </div>
+
+      {/* Teams-Style 5-Minute Live Interview Reminder Banner */}
+      <UpcomingInterviewReminderBanner interviews={interviews} />
 
       {/* Recruiter Key Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">

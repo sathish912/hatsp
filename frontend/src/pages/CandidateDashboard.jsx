@@ -6,6 +6,8 @@ import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
 import ProfileModal from '../components/ProfileModal';
 
+import UpcomingInterviewReminderBanner from '../components/UpcomingInterviewReminderBanner';
+
 export default function CandidateDashboard() {
   const { user } = useAuth();
   const [applications, setApplications] = useState([]);
@@ -99,6 +101,9 @@ export default function CandidateDashboard() {
           <span>Edit Profile & Resume</span>
         </button>
       </div>
+
+      {/* Teams-Style 5-Minute Live Interview Reminder Banner */}
+      <UpcomingInterviewReminderBanner interviews={interviews} />
 
       {/* Candidate Profile Summary */}
       <div className="glass-card p-6 rounded-2xl border border-slate-800 flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between text-xs">

@@ -186,7 +186,7 @@ def seed():
         # Seed applications & interviews across both orgs
         app_specs = [
             {"job_idx": 0, "cand_idx": 0, "status": ApplicationStatus.OFFER_SENT.value, "rec": rec1, "days": 1, "offer": True},
-            {"job_idx": 1, "cand_idx": 1, "status": ApplicationStatus.INTERVIEW_SCHEDULED.value, "rec": rec1, "days": 2, "offer": False},
+            {"job_idx": 1, "cand_idx": 1, "status": ApplicationStatus.APPLIED.value, "rec": rec1, "days": 0, "offer": False},
             {"job_idx": 2, "cand_idx": 2, "status": ApplicationStatus.SHORTLISTED.value, "rec": rec1, "days": 0, "offer": False},
             {"job_idx": 3, "cand_idx": 3, "status": ApplicationStatus.INTERVIEW_SCHEDULED.value, "rec": rec2, "days": 3, "offer": False},
             {"job_idx": 4, "cand_idx": 4, "status": ApplicationStatus.INTERVIEW_SCHEDULED.value, "rec": rec2, "days": 5, "offer": False},
