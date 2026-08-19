@@ -29,13 +29,17 @@ export default function Navbar() {
     }
   };
 
-  const openCalendarModal = async () => {
+  const fetchInterviews = async () => {
     try {
       const res = await interviewsAPI.getMyInterviews();
       setInterviews(res.data || []);
     } catch (err) {
       console.error('Error fetching calendar interviews:', err);
     }
+  };
+
+  const openCalendarModal = async () => {
+    await fetchInterviews();
     setCalendarOpen(true);
   };
 
