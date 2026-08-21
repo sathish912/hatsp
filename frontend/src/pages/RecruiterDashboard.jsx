@@ -16,6 +16,7 @@ export default function RecruiterDashboard() {
   const [interviews, setInterviews] = useState([]);
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sortByAiMatch, setSortByAiMatch] = useState(false);
 
   // Modals state
   const [createJobModal, setCreateJobModal] = useState(false);
@@ -273,7 +274,26 @@ export default function RecruiterDashboard() {
 
       {/* Kanban / Applicant Pipeline Board */}
       <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
-        <h3 className="text-base font-bold text-white">Recruitment Pipeline Board</h3>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-2 border-b border-slate-800">
+          <div>
+            <h3 className="text-base font-bold text-white flex items-center space-x-2">
+              <span>Recruitment Pipeline Board</span>
+            </h3>
+            <p className="text-xs text-slate-400">Track applicants across stages & rank top talent with AI vector matching</p>
+          </div>
+
+          <button
+            onClick={() => setSortByAiMatch(!sortByAiMatch)}
+            className={`px-3.5 py-2 rounded-xl border text-xs font-extrabold transition flex items-center space-x-2 ${
+              sortByAiMatch
+                ? 'bg-purple-600 border-purple-400 text-white shadow-lg shadow-purple-500/30'
+                : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-purple-500'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-purple-300" />
+            <span>{sortByAiMatch ? 'Sorted by AI Match Score ✓' : '🤖 Rank Pipeline by AI Match'}</span>
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {[
@@ -293,14 +313,30 @@ export default function RecruiterDashboard() {
               <div className="space-y-3">
                 {applications
                   .filter(a => col.stage === 'Offer Sent' ? ['Interview Completed', 'Selected', 'Offer Sent', 'Offer Accepted'].includes(a.status) : a.status === col.stage)
+                  .sort((a, b) => sortByAiMatch ? (b.ai_match_score || 85) - (a.ai_match_score || 85) : 0)
                   .map((app) => (
-                    <div key={app.id} className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2.5 text-xs hover:border-slate-700 transition">
+                    <div key={app.id} className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2.5 text-xs hover:border-slate-700 transition shadow-md">
                       <div className="flex items-start justify-between">
                         <div>
                           <div className="font-bold text-white text-sm">{app.candidate_name}</div>
                           <div className="text-[11px] text-slate-400">{app.job_title}</div>
                         </div>
                         <StatusBadge status={app.status} />
+                      </div>
+
+                      {/* AI Match Score Badge */}
+                      <div className="flex items-center justify-between text-[11px] pt-1">
+                        <span className="text-[10px] text-slate-500">AI Match Rating:</span>
+                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black border flex items-center space-x-1 ${
+                          (app.ai_match_score || 85) >= 85
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                            : (app.ai_match_score || 85) >= 65
+                            ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                            : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                        }`}>
+                          <Sparkles className="w-3 h-3 text-purple-400" />
+                          <span>{app.ai_match_score || 85}% Match</span>
+                        </span>
                       </div>
 
                       {/* View Candidate Profile & Resume Button */}

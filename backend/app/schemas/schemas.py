@@ -164,6 +164,9 @@ class JobApplicationResponse(BaseModel):
     candidate_experience_certificate_url: Optional[str] = None
     job_title: Optional[str] = None
     company_name: Optional[str] = None
+    ai_match_score: Optional[int] = 85
+    ai_match_grade: Optional[str] = "Strong Match"
+    ai_match_reasons: Optional[List[str]] = None
 
     model_config = ConfigDict(from_attributes=True)
 

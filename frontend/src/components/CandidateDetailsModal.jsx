@@ -37,6 +37,45 @@ export default function CandidateDetailsModal({ isOpen, onClose, application, on
 
         {/* Content Body */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+          {/* AI Candidate Fit & Match Score Analysis */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/60 via-indigo-950/50 to-slate-950 border border-purple-500/40 shadow-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">
+                  <Sparkles className="w-4 h-4 text-purple-400" />
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-white text-xs">AI Candidate Fit & Requirement Score</h4>
+                  <p className="text-[10px] text-slate-400">Automated NLP & Skill Vectorization Match</p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <div className={`px-3 py-1 rounded-xl text-xs font-black border flex items-center space-x-1.5 ${
+                  (application.ai_match_score || 85) >= 85
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                    : (application.ai_match_score || 85) >= 65
+                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                    : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                }`}>
+                  <span className="text-base">{application.ai_match_score || 85}%</span>
+                  <span className="text-[10px] uppercase font-bold tracking-wider">{application.ai_match_grade || 'Strong Match'}</span>
+                </div>
+              </div>
+            </div>
+
+            {application.ai_match_reasons && application.ai_match_reasons.length > 0 && (
+              <div className="pt-2 border-t border-purple-500/20 space-y-1">
+                {application.ai_match_reasons.map((reason, idx) => (
+                  <div key={idx} className="text-[11px] text-purple-200/90 flex items-center space-x-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0" />
+                    <span>{reason}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Contact Details Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-2xl bg-slate-950 border border-slate-800/80">
             <div className="flex items-center space-x-2.5 text-slate-300">

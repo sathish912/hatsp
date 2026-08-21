@@ -7,6 +7,7 @@ from app.models.models import JobApplication, Job, User, CandidateProfile, Organ
 from app.schemas.schemas import JobApplicationCreate, ApplicationStatusUpdate, JobApplicationResponse
 from app.api.deps import get_current_user, require_roles, check_application_subscription_limit
 from app.services.email_service import send_application_received_email, send_shortlisted_email, send_rejection_email
+from app.services.ai_matching_service import calculate_candidate_match_score
 
 router = APIRouter(prefix="/applications", tags=["Applications"])
 
@@ -50,6 +51,13 @@ def apply_for_job(
     org = db.query(Organization).filter(Organization.id == job.organization_id).first()
     profile = db.query(CandidateProfile).filter(CandidateProfile.user_id == current_user.id).first()
 
+    ai_res = calculate_candidate_match_score(
+        job_title=job.title if job else "",
+        job_desc=job.description if job else "",
+        candidate_skills=profile.skills if profile else "",
+        candidate_exp=profile.experience if profile else ""
+    )
+
     return JobApplicationResponse(
         id=new_app.id,
         job_id=new_app.job_id,
@@ -64,7 +72,10 @@ def apply_for_job(
         candidate_resume_url=profile.resume_url if profile else None,
         candidate_experience_certificate_url=profile.experience_certificate_url if profile else None,
         job_title=job.title,
-        company_name=org.company_name if org else "Company"
+        company_name=org.company_name if org else "Company",
+        ai_match_score=ai_res["match_score"],
+        ai_match_grade=ai_res["match_grade"],
+        ai_match_reasons=ai_res["match_reasons"]
     )
 
 @router.get("/my-applications", response_model=List[JobApplicationResponse])
@@ -77,6 +88,14 @@ def get_my_applications(current_user: User = Depends(require_roles([UserRole.CAN
     for app in apps:
         job = db.query(Job).filter(Job.id == app.job_id).first()
         org = db.query(Organization).filter(Organization.id == job.organization_id).first() if job else None
+        
+        ai_res = calculate_candidate_match_score(
+            job_title=job.title if job else "",
+            job_desc=job.description if job else "",
+            candidate_skills=profile.skills if profile else "",
+            candidate_exp=profile.experience if profile else ""
+        )
+
         res.append(
             JobApplicationResponse(
                 id=app.id,
@@ -92,7 +111,10 @@ def get_my_applications(current_user: User = Depends(require_roles([UserRole.CAN
                 candidate_resume_url=profile.resume_url if profile else None,
                 candidate_experience_certificate_url=profile.experience_certificate_url if profile else None,
                 job_title=job.title if job else "N/A",
-                company_name=org.company_name if org else "Company"
+                company_name=org.company_name if org else "Company",
+                ai_match_score=ai_res["match_score"],
+                ai_match_grade=ai_res["match_grade"],
+                ai_match_reasons=ai_res["match_reasons"]
             )
         )
     return res
@@ -117,6 +139,13 @@ def get_org_applications(
         profile = db.query(CandidateProfile).filter(CandidateProfile.user_id == app.candidate_id).first() if cand else None
         org = db.query(Organization).filter(Organization.id == job.organization_id).first() if job else None
 
+        ai_res = calculate_candidate_match_score(
+            job_title=job.title if job else "",
+            job_desc=job.description if job else "",
+            candidate_skills=profile.skills if profile else "",
+            candidate_exp=profile.experience if profile else ""
+        )
+
         res.append(
             JobApplicationResponse(
                 id=app.id,
@@ -132,7 +161,10 @@ def get_org_applications(
                 candidate_resume_url=profile.resume_url if profile else None,
                 candidate_experience_certificate_url=profile.experience_certificate_url if profile else None,
                 job_title=job.title if job else "N/A",
-                company_name=org.company_name if org else "Company"
+                company_name=org.company_name if org else "Company",
+                ai_match_score=ai_res["match_score"],
+                ai_match_grade=ai_res["match_grade"],
+                ai_match_reasons=ai_res["match_reasons"]
             )
         )
     return res
